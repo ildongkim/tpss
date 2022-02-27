@@ -42,14 +42,6 @@ public interface EgovLoginService {
     LoginVO actionLogin(LoginVO vo) throws Exception;
     
     /**
-	 * 인증서 로그인을 처리한다
-	 * @param vo LoginVO
-	 * @return LoginVO
-	 * @exception Exception
-	 */
-    LoginVO actionCrtfctLogin(LoginVO vo) throws Exception;
-    
-    /**
 	 * 아이디를 찾는다.
 	 * @param vo LoginVO
 	 * @return LoginVO

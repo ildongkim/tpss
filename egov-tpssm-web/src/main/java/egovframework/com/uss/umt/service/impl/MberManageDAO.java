@@ -116,4 +116,12 @@ public class MberManageDAO extends EgovComAbstractDAO{
         update("mberManageDAO.updateLockIncorrect", mberManageVO);
     }
 
+    /**
+     * 입력한 사용자아이디의 중복여부를 체크하여 사용가능여부를 확인
+     * @param checkId 중복체크대상 아이디
+     * @return int 사용가능여부(아이디 사용회수 )
+     */
+    public int checkIdDplct(String checkId){
+        return (Integer)selectOne("mberManageDAO.checkIdDplct_S", checkId);
+    }
 }

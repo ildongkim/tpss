@@ -26,10 +26,10 @@
  	<security:http pattern="\A/WEB-INF/jsp/.*\Z" request-matcher="regex" security="none"/>
 	
     <egov-security:config id="securityConfig"
-		loginUrl="/cmm/init/loginUsr.do"
-		logoutSuccessUrl="/cmm/init/index.do"
-		loginFailureUrl="/cmm/init/index.do?login_error=1"
-		accessDeniedUrl="/cmm/init/accessDenied.do"
+		loginUrl="/"
+		logoutSuccessUrl="/"
+		loginFailureUrl="/"
+		accessDeniedUrl="/"
 
 		dataSource="egov.dataSource"
 		jdbcUsersByUsernameQuery="SELECT USER_ID, ESNTL_ID AS PASSWORD, 1 ENABLED, USER_NM, USER_ZIP,
@@ -46,10 +46,10 @@
 		hashBase64="false"
 
 		concurrentMaxSessons="1"
-		concurrentExpiredUrl="/cmm/init/index.do"
+		concurrentExpiredUrl="/"
 		errorIfMaximumExceeded="false"
 
-		defaultTargetUrl="/cmm/main.do"
+		defaultTargetUrl="/"
 		alwaysUseDefaultTargetUrl="true"
 
 		sniff="true"

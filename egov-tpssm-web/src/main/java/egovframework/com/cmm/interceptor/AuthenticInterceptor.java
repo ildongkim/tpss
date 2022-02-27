@@ -67,31 +67,6 @@ public class AuthenticInterceptor extends HandlerInterceptorAdapter {
 			ModelAndView modelAndView = new ModelAndView("redirect:/cmm/init/index.do");
 			throw new ModelAndViewDefiningException(modelAndView);
 		}
-		
-		//인증된 권한 목록
-		List<String> authList = (List<String>)EgovUserDetailsHelper.getAuthorities();
-		
-		//관리자인증여부
-		boolean adminAuthUrlPatternMatcher = false;
-		
-		//AntPathRequestMatcher
-		AntPathRequestMatcher antPathRequestMatcher = null;
-		
-		if (adminAuthPatternList == null) return true;
-		
-		//관리자가 아닐때 체크함
-		for(String adminAuthPattern : adminAuthPatternList){
-			antPathRequestMatcher = new AntPathRequestMatcher(adminAuthPattern);
-			if(antPathRequestMatcher.matches(request)){
-				adminAuthUrlPatternMatcher = true;
-			}
-		}
-		
-		//관리자 권한 체크
-		if(adminAuthUrlPatternMatcher && !authList.contains("ADMIN")){
-			ModelAndView modelAndView = new ModelAndView("redirect:/cmm/init/loginUsr.do?auth_error=1");
-			throw new ModelAndViewDefiningException(modelAndView);
-		}
 		return true;
 	}
 

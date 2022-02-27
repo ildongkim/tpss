@@ -50,17 +50,6 @@ public class LoginDAO extends EgovComAbstractDAO {
     }
 
     /**
-	 * 인증서 로그인을 처리한다
-	 * @param vo LoginVO
-	 * @return LoginVO
-	 * @exception Exception
-	 */
-    public LoginVO actionCrtfctLogin(LoginVO vo) throws Exception {
-
-    	return (LoginVO)selectOne("LoginUsr.actionCrtfctLogin", vo);
-    }
-
-    /**
 	 * 아이디를 찾는다.
 	 * @param vo LoginVO
 	 * @return LoginVO

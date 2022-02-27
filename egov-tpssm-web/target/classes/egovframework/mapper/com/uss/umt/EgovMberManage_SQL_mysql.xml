@@ -226,4 +226,9 @@ FROM(
             WHERE  ESNTL_ID  = #{uniqId}
     </update>
 
+    <select id="checkIdDplct_S" resultType="int">
+            SELECT COUNT(1) usedCnt
+              FROM COMTNGNRLMBER
+             WHERE MBER_ID = #{checkId}
+    </select>
 </mapper>

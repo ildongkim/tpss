@@ -36,17 +36,9 @@ import org.springframework.stereotype.Service;
 @Service("mberManageService")
 public class EgovMberManageServiceImpl extends EgovAbstractServiceImpl implements EgovMberManageService {
 
-	/** userManageDAO */
-	@Resource(name="userManageDAO")
-	private UserManageDAO userManageDAO;
-
 	/** mberManageDAO */
 	@Resource(name="mberManageDAO")
 	private MberManageDAO mberManageDAO;
-
-	/** entrprsManageDAO */
-	@Resource(name="entrprsManageDAO")
-	private EntrprsManageDAO entrprsManageDAO;
 
 	/** egovUsrCnfrmIdGnrService */
 	@Resource(name="egovUsrCnfrmIdGnrService")
@@ -126,16 +118,8 @@ public class EgovMberManageServiceImpl extends EgovAbstractServiceImpl implement
 		String [] delId = checkedIdForDel.split(",");
 		for (int i=0; i<delId.length ; i++){
 			String [] id = delId[i].split(":");
-			if (id[0].equals("USR03")){
-		        //업무사용자(직원)삭제
-				userManageDAO.deleteUser(id[1]);
-			}else if(id[0].equals("USR01")){
-				//일반회원삭제
-				mberManageDAO.deleteMber(id[1]);
-			}else if(id[0].equals("USR02")){
-				//기업회원삭제
-				entrprsManageDAO.deleteEntrprsmber(id[1]);
-			}
+			//일반회원삭제
+			mberManageDAO.deleteMber(id[1]);
 		}
 	}
 
@@ -184,4 +168,14 @@ public class EgovMberManageServiceImpl extends EgovAbstractServiceImpl implement
 		mberManageDAO.updateLockIncorrect(mberManageVO);
 	}
 
+	/**
+	 * 입력한 사용자아이디의 중복여부를 체크하여 사용가능여부를 확인
+	 * @param checkId 중복여부 확인대상 아이디
+	 * @return 사용가능여부(아이디 사용회수 int)
+	 * @throws Exception
+	 */
+	@Override
+	public int checkIdDplct(String checkId) {
+		return mberManageDAO.checkIdDplct(checkId);
+	}
 }

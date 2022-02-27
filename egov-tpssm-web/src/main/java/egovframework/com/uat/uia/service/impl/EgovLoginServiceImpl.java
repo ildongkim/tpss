@@ -100,28 +100,6 @@ public class EgovLoginServiceImpl extends EgovAbstractServiceImpl implements Ego
     }
 
     /**
-	 * 인증서 로그인을 처리한다
-	 * @param vo LoginVO
-	 * @return LoginVO
-	 * @exception Exception
-	 */
-	@Override
-	public LoginVO actionCrtfctLogin(LoginVO vo) throws Exception {
-
-    	// 1. DN값으로 ID, PW를 조회한다.
-    	LoginVO loginVO = loginDAO.actionCrtfctLogin(vo);
-
-    	// 3. 결과를 리턴한다.
-    	if (loginVO != null && !loginVO.getId().equals("") && !loginVO.getPassword().equals("")) {
-    		return loginVO;
-    	} else {
-    		loginVO = new LoginVO();
-    	}
-
-    	return loginVO;
-    }
-
-    /**
 	 * 아이디를 찾는다.
 	 * @param vo LoginVO
 	 * @return LoginVO

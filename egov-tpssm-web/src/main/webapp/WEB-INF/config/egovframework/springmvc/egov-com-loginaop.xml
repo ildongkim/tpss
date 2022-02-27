@@ -10,9 +10,9 @@
 	<aop:config>
 		<aop:aspect id="loginLogAspect" ref="loginlog">
 			<!--  로그인 Method -->
-			<aop:before pointcut="execution(public * tpssm.com.cmm.web.MainController.actionMain(..)) " method="logLogin" />
+			<aop:before pointcut="execution(public * tpss.com.cmm.web.MainController.actionMain(..)) " method="logLogin" />
 			<!--  로그아웃 Method -->
-			<aop:before pointcut="execution(public * tpssm.com.cmm.init.web.ComInitController.actionLogout(..))" method="logLogout" />
+			<aop:before pointcut="execution(public * tpss.com.cmm.init.web.ComInitController.actionLogout(..))" method="logLogout" />
 		</aop:aspect>
 	</aop:config>
 
