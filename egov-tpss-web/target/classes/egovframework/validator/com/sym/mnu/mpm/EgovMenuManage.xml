@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+
+    <formset>
+
+        <form name="menuManageVO"> 
+        
+            <field property="upperMenuId" depends="required">
+                <arg0 key="메뉴상위번호" resource="true"/>
+            </field>
+            
+            <field property="menuNo" depends="required">
+                <arg0 key="메뉴번호" resource="true"/>
+            </field>
+            
+            <field property="menuNm" depends="required, maxlength">
+                <arg0 key="메뉴명" resource="true"/>
+                <arg1 key="60" resource="true"/>
+                <var>
+                <var-name>maxlength</var-name>
+                <var-value>60</var-value>
+                </var>
+            </field>
+            
+            <field property="menuOrdr" depends="required, maxlength">
+                <arg0 key="메뉴순서" resource="true"/>
+                <arg1 key="5" resource="true"/>
+                <var>
+                <var-name>maxlength</var-name>
+                <var-value>5</var-value>
+                </var>
+            </field>
+            
+            <field property="menuDc" depends="maxlength">
+                <arg0 key="메뉴설명" resource="true"/>
+                <arg1 key="250" resource="true"/>
+                <var>
+                <var-name>maxlength</var-name>
+                <var-value>250</var-value>
+                </var>
+            </field>
+            
+			<field property="useAt" depends="required">
+        		<arg0 key="사용여부" resource="true"/><!-- 사용여부 -->
+			</field>
+        </form>
+        
+    </formset>
+
+</form-validation>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="authorManageDAO">
+
+    <select id="selectAuthorList" parameterType="comDefaultVO" resultType="egovMap">
+        
+            SELECT AUTHOR_CODE, AUTHOR_NM, AUTHOR_DC, AUTHOR_CREAT_DE, USE_AT
+              FROM COMTNAUTHORINFO
+             WHERE AUTHOR_NM LIKE '%'||#{searchKeyword}||'%'
+               AND AUTHOR_CODE NOT LIKE 'IS_%'
+             ORDER BY AUTHOR_CREAT_DE DESC
+    </select>
+
+    <insert id="insertAuthor">
+        
+			MERGE INTO COMTNAUTHORINFO A 
+			USING db_root ON A.AUTHOR_CODE = #{authorCode}
+			WHEN MATCHED THEN 
+				UPDATE SET 
+					AUTHOR_NM = #{authorNm},
+					AUTHOR_DC = #{authorDc},
+					AUTHOR_CREAT_DE = SYSDATETIME,
+					USE_AT = #{useAt},
+					LAST_UPDT_PNTTM = SYSDATETIME, 
+					LAST_UPDUSR_ID = #{registerId}
+			WHEN NOT MATCHED THEN 
+				INSERT 
+					(AUTHOR_CODE, AUTHOR_NM, AUTHOR_DC, AUTHOR_CREAT_DE, USE_AT,
+					FRST_REGIST_PNTTM, FRST_REGISTER_ID, LAST_UPDT_PNTTM, LAST_UPDUSR_ID)
+				VALUES 
+					(#{authorCode}, #{authorNm}, #{authorDc}, SYSDATETIME, #{useAt}, 
+					SYSDATETIME, #{registerId}, SYSDATETIME, #{registerId})
+    </insert>
+    
+    <delete id="deleteAuthor">
+            DELETE FROM COMTNAUTHORINFO WHERE AUTHOR_CODE=#{authorCode}
+    </delete>
+</mapper>
