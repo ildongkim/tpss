@@ -151,43 +151,66 @@ function getHierarchyMenuList(array) {
 /* ********************************************************
  * Grid Checkbox Header Renderer
  ******************************************************** */
-const CustomHeaderCheckBox = class {
-	constructor(props) {
-		const { grid, rowKey } = props;
-		const el = document.createElement('input');
-		el.id = String(rowKey);
-		el.type = 'checkbox';
-		el.checked = grid.getRow(rowKey).useAt == "Y" ? true : false;
-		el.onchange = function (e) { 
-			grid.setValue(rowKey, "useAt", this.checked ? "Y" : "N"); 
-		};
-		this.el = el;
-		this.render(props);
-	}
-	getElement() { return this.el; }
-	render(props) {
-		const { grid, rowKey } = props;
-		this.el.checked = grid.getRow(rowKey).useAt == "Y" ? true : false;
-	}
+var CustomHeaderCheckBox = function(props)  {
+	const el = document.createElement('input');
+	el.id = String(rowKey);
+	el.type = 'checkbox';
+	el.checked = props.grid.getRow(props.rowKey).useAt == "Y" ? true : false;
+	el.onchange = function (e) { 
+		props.grid.setValue(props.rowKey, "useAt", this.checked ? "Y" : "N"); 
+	};
+	this.el = el;
+	this.render(props);
+};
+CustomHeaderCheckBox.prototype.getElement = function() { return this.el; }
+CustomHeaderCheckBox.prototype.render = function(props) { 
+	this.el.checked = props.grid.getRow(props.rowKey).useAt == "Y" ? true : false;
 }
-	
+
 /* ********************************************************
  * Grid Checkbox Renderer
  ******************************************************** */
-class CustomCheckBox {
-	constructor(props) {
-		const el = document.createElement('input');
-		const { grid, rowKey, columnInfo } = props;
-		el.type = 'checkbox';
-		el.checked = props.value == "Y" ? true : false;
-		el.onchange = function (e) { grid.setValue(rowKey, columnInfo.name, this.checked ? "Y" : "N"); };
-		this.el = el;
-	}
-	
-	getElement() {
-        return this.el;
-    }
-}
+var CustomCheckBox = function(props)  {
+	const el = document.createElement('input');
+	el.type = 'checkbox';
+	el.checked = props.value == "Y" ? true : false;
+	el.onchange = function (e) { props.grid.setValue(props.rowKey, props.columnInfo.name, this.checked ? "Y" : "N"); };
+	this.el = el;
+};
+CustomCheckBox.prototype.getElement = function() { return this.el; }
+
+/* ********************************************************
+ * Grid Formatter Custom Uploader
+ ******************************************************** */
+var CustomUploader = function(props)  {
+	var val = (props.value==null) ? "" : props.value;
+	var html = '';
+	html += '<label for="file_'+props.row.rowKey+'">';
+	html += 'Uploader';
+	html += '<input class="upload" type="file" ';
+	html += 'id="file_'+props.row.rowKey+'" ';
+	html += 'value='+val+' ';
+	html += 'align="center" style="display:none">';
+	html += '</lable>';
+    return html;
+};
+
+/* ********************************************************
+ * Grid Editor Custom AutoComplete
+ ******************************************************** */
+var CustomAutoComplete = function(props)  {
+	const el = document.createElement('input');
+	el.type = 'text';
+	el.id = props.columnInfo.name;
+	el.value = (props.value==null) ? "" : String(props.value);
+	el.name = props.columnInfo.name;
+	el.className = "autocomplete";
+	el.setAttribute("list", "countrydata");
+	this.el = el;
+};	
+CustomAutoComplete.prototype.getElement = function() { return this.el; }
+CustomAutoComplete.prototype.getValue = function() { return this.el.value; }
+CustomAutoComplete.prototype.mounted = function() { this.el.select(); }
 
 /* ********************************************************
  * Grid Selected Row Find Sample
