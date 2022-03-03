@@ -11,7 +11,7 @@
 				(#{cntry}, #{name}, #{rank}, #{birth}, #{phone}, #{sFile}, #{sFileName}, #{sFileSize}, #{sFileType},
 				sysdate(), 'ADMIN', sysdate(), 'ADMIN')
 			ON DUPLICATE KEY UPDATE
-				RANK = #{rank},
+				RANK = #{rank}
 				, BIRTH = #{birth}
 				, PHONE = #{phone}
 				<if test="sFile != null">
@@ -42,14 +42,12 @@
 	<resultMap id="fileMap" type="tpss.com.cmm.ses.service.SampleVO">
 		<result property="sFileName" column="SFILENAME"/>
 		<result property="sFileType" column="SFILETYPE"/>
+		<result property="sFileSize" column="SFILESIZE"/>
 		<result property="sFile" column="SFILE" jdbcType="BLOB" javaType="_byte[]"/>
 	</resultMap>
 	
 	<select id="downloadSample" parameterType="tpss.com.cmm.ses.service.SampleVO" resultMap="fileMap">
-		SELECT 
-			DATE_FORMAT(sysdate(), '%Y-%m-%d')||'_'||SFILENAME AS SFILENAME, 
-			SFILETYPE, 
-			SFILE 
+		SELECT SFILENAME, SFILETYPE, SFILESIZE, SFILE
 		FROM COMTNSAMPLE 
 		WHERE CNTRY = #{cntry} 
 		AND NAME = #{name}

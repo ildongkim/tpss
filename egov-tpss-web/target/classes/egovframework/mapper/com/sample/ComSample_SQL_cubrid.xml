@@ -8,7 +8,7 @@
 			USING db_root ON A.CNTRY = #{cntry} AND A.NAME = #{name}
 			WHEN MATCHED THEN 
 				UPDATE SET 
-					RANK = #{rank},
+					RANK = #{rank}
 					, BIRTH = #{birth}
 					, PHONE = #{phone}
 					<if test="sFile != null">
@@ -46,14 +46,12 @@
 	<resultMap id="fileMap" type="tpss.com.cmm.ses.service.SampleVO">
 		<result property="sFileName" column="SFILENAME"/>
 		<result property="sFileType" column="SFILETYPE"/>
+		<result property="sFileSize" column="SFILESIZE"/>
 		<result property="sFile" column="SFILE" jdbcType="BLOB" javaType="_byte[]"/>
 	</resultMap>
 	
 	<select id="downloadSample" parameterType="tpss.com.cmm.ses.service.SampleVO" resultMap="fileMap">
-		SELECT 
-			TO_CHAR(sys_datetime, 'YYYYMMDDHH24MISS')||'_'||SFILENAME AS SFILENAME, 
-			SFILETYPE, 
-			SFILE 
+		SELECT SFILENAME, SFILETYPE, SFILESIZE, SFILE 
 		FROM COMTNSAMPLE 
 		WHERE CNTRY = #{cntry} 
 		AND NAME = #{name}

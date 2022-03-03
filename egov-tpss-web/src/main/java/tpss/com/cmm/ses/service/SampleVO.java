@@ -7,6 +7,7 @@ public class SampleVO  {
 	private String name;
 	private String sFileName;
 	private String sFileType;
+	private Long sFileSize;
 	private byte[] sFile;
 	
 	public int getRowKey() {
@@ -38,6 +39,12 @@ public class SampleVO  {
 	}
 	public void setsFileType(String sFileType) {
 		this.sFileType = sFileType;
+	}
+	public Long getsFileSize() {
+		return sFileSize;
+	}
+	public void setsFileSize(Long sFileSize) {
+		this.sFileSize = sFileSize;
 	}
 	public byte[] getsFile() {
 		return sFile;

@@ -1,20 +1,25 @@
 package tpss.com.cmm.ses.web;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +27,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.ComDefaultVO;
-import egovframework.com.cmm.service.EgovProperties;
+import egovframework.com.cmm.EgovBrowserUtil;
+import egovframework.com.cmm.util.EgovBasicLogger;
+import egovframework.com.cmm.util.EgovResourceCloseHelper;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.psl.dataaccess.util.EgovMap;
 import tpss.com.cmm.ses.service.ComSampleService;
@@ -38,21 +45,50 @@ public class ComSampleController {
 	private ComSampleService comSampleService;
 	
 	@PostMapping(value="/cmm/ses/downloadSample.do")
-	public ModelAndView downloadSample(@RequestBody SampleVO sampleVO) throws Exception {
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("jsonView");
+	public void downloadSample(@RequestParam Map<String, Object> commandMap,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//ModelAndView modelAndView = new ModelAndView();
+		//modelAndView.setViewName("jsonView");
+		//Boolean viewResult = true; 
+		
+		SampleVO sampleVO = new SampleVO();
+		sampleVO.setCntry(EgovStringUtil.isNullToString(commandMap.get("cntry")));
+		sampleVO.setName(EgovStringUtil.isNullToString(commandMap.get("name")));
+		sampleVO.setsFileName(EgovStringUtil.isNullToString(commandMap.get("sFileName")));
+		sampleVO.setsFileType(EgovStringUtil.isNullToString(commandMap.get("sFileType")));
 		SampleVO resultVO = comSampleService.downloadSample(sampleVO);
 		if (resultVO == null || "".equals(EgovStringUtil.isNullToString(resultVO.getsFileName()))) {
-			modelAndView.addObject("result", false);
+			//viewResult = false;
 		} else {
-			String synchrnServerPath = EgovProperties.getProperty("Globals.fileStorePath");
-			File outFile = new File(synchrnServerPath+resultVO.getsFileName());
-			FileOutputStream outputStream = new FileOutputStream(outFile);
-			outputStream.write(resultVO.getsFile());
-			outputStream.close();			
-			modelAndView.addObject("result", true);
+			String mimetype = "application/x-msdownload";
+			String userAgent = request.getHeader("User-Agent");
+			HashMap<String,String> result = EgovBrowserUtil.getBrowser(userAgent);
+			if ( !EgovBrowserUtil.MSIE.equals(result.get(EgovBrowserUtil.TYPEKEY)) ) {
+				mimetype = "application/x-stuff";
+			}
+
+			String contentDisposition = EgovBrowserUtil.getDisposition(resultVO.getsFileName(),userAgent,"UTF-8");
+			response.setContentType(mimetype);
+			response.setHeader("Content-Disposition", contentDisposition);
+			//response.setContentLengthLong(0);
+
+			BufferedInputStream in = null;
+			BufferedOutputStream out = null;
+			try {
+				InputStream is = new ByteArrayInputStream(resultVO.getsFile());
+				in = new BufferedInputStream(is);
+				out = new BufferedOutputStream(response.getOutputStream());
+				FileCopyUtils.copy(in, out);
+				out.flush();
+			} catch (IOException ex) {
+				//viewResult = false;
+				EgovBasicLogger.ignore("IO Exception", ex);
+			} finally {
+				EgovResourceCloseHelper.close(out);
+			}
 		}
-		return modelAndView;		
+		//modelAndView.addObject("result", viewResult);
+		//return modelAndView;
 	}
 	
 	@PostMapping(value="/cmm/ses/selectSample.do")
@@ -69,7 +105,7 @@ public class ComSampleController {
 		return modelAndView;
 	}
 	
-	@RequestMapping("/cmm/ses/insertSample.do")
+	@PostMapping("/cmm/ses/insertSample.do")
 	public ModelAndView insertSample(
 			MultipartHttpServletRequest multipartRequest,
 			@RequestPart(value="egovMap") List<EgovMap> egovMapList) throws Exception {

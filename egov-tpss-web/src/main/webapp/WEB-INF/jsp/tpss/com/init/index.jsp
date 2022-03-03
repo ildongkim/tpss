@@ -48,14 +48,17 @@ function gridButtonClick(data) {
 		$.ajax({
 			url : "<c:url value='/cmm/ses/downloadSample.do'/>",
 			method :"POST",
-			dataType : "JSON",
-			contentType : "application/json",
-			data : JSON.stringify(data),
+			//processData: false,
+			//contentType: false,
+			data : {cntry:data.cntry, name:data.name, sFileName:data.sFileName, sFileType:data.sFileType},
 			success : function(result) {
-				(result) ? confirm("정상적으로 저장되었습니다.") : confirm("저장이 실패하였습니다.");
+				console.log(result);
+				confirm("정상적으로 저장되었습니다.")
+				//(result) ? confirm("정상적으로 저장되었습니다.") : confirm("저장이 실패하였습니다.");
 			},
 			error : function(xhr, status) {
-				confirm("저장이 실패하였습니다.");
+				console.log(status);
+				confirm("저장이 실패하였습니다!.");
 			}
 		});
 	}
@@ -69,6 +72,7 @@ function insertSample() {
 		for (var i = 0; i < fileInput.length; i++) {
 			if (fileInput[i].files.length > 0) {
 				for (var j = 0; j < fileInput[i].files.length; j++) {
+					console.log(fileInput[i].id);
 					formData.append(fileInput[i].id, $('.gridUploader')[i].files[j]);
 				}
 			}

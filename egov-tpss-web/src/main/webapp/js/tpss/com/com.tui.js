@@ -215,7 +215,7 @@ var CustomUploader = function(props)  {
 	html += 'id="file_'+props.row.rowKey+'" ';
 	html += 'name='+props.row.rowKey+' ';
 	html += 'value='+val+' ';
-	html += 'accept="image/png, image/jpeg,.pdf" ';
+	html += 'accept="image/png, image/jpeg" ';
 	html += 'onchange="setFileInfo(this, mainGrid,'+props.row.rowKey+')" ';
 	html += 'align="center" style="display:none">';
 	html += '</lable>';
