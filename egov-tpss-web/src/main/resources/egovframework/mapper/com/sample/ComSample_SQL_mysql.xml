@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:39 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ComSampleDAO">
+
+    <insert id="insertSample">
+		    INSERT INTO  COMTNSAMPLE
+				(CNTRY, NAME, RANK, BIRTH, PHONE, SFILE, SFILENAME, SFILESIZE, SFILETYPE, 
+				FRST_REGIST_PNTTM, FRST_REGISTER_ID, LAST_UPDT_PNTTM, LAST_UPDUSR_ID)
+			VALUES
+				(#{cntry}, #{name}, #{rank}, #{birth}, #{phone}, #{sFile}, #{sFileName}, #{sFileSize}, #{sFileType},
+				sysdate(), 'ADMIN', sysdate(), 'ADMIN')
+			ON DUPLICATE KEY UPDATE
+				RANK = #{rank},
+				, BIRTH = #{birth}
+				, PHONE = #{phone}
+				<if test="sFile != null">
+					, SFILE = #{sFile}
+					, SFILENAME = #{sFileName}
+					, SFILESIZE = #{sFileSize}
+					, SFILETYPE = #{sFileType}
+				</if>
+				, LAST_UPDT_PNTTM = sysdate() 
+				, LAST_UPDUSR_ID = 'ADMIN'
+    </insert>
+
+	<select id="selectSample" parameterType="comDefaultVO" resultType="egovMap">
+	<![CDATA[
+			SELECT
+				CNTRY     AS "cntry",
+				NAME      AS "name",
+				RANK      AS "rank",
+				BIRTH     AS "birth",
+				PHONE     AS "phone",
+				SFILENAME AS "sFileName",
+				SFILESIZE AS "sFileSize",
+				SFILETYPE AS "sFileType"
+			FROM COMTNSAMPLE
+	]]>
+	</select>
+	
+	<resultMap id="fileMap" type="tpss.com.cmm.ses.service.SampleVO">
+		<result property="sFileName" column="SFILENAME"/>
+		<result property="sFileType" column="SFILETYPE"/>
+		<result property="sFile" column="SFILE" jdbcType="BLOB" javaType="_byte[]"/>
+	</resultMap>
+	
+	<select id="downloadSample" parameterType="tpss.com.cmm.ses.service.SampleVO" resultMap="fileMap">
+		SELECT 
+			DATE_FORMAT(sysdate(), '%Y-%m-%d')||'_'||SFILENAME AS SFILENAME, 
+			SFILETYPE, 
+			SFILE 
+		FROM COMTNSAMPLE 
+		WHERE CNTRY = #{cntry} 
+		AND NAME = #{name}
+		AND SFILENAME = #{sFileName}
+		AND SFILETYPE = #{sFileType}
+	</select>
+	
+	 <delete id="deleteSample">
+	 	DELETE FROM COMTNSAMPLE WHERE CNTRY = #{cntry} AND NAME = #{name}
+	 </delete>
+</mapper>

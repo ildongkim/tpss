@@ -14,80 +14,173 @@
 ******************************************************** */
 $(document).ready(function() 
 {
-	gridSample = new tui.Grid({
-		el: document.getElementById('gridSample'),
+	var dlistItems = [
+        { text: '대한민국', value: '대한민국', code: 'KOR' },
+        { text: '아루바', value: '아루바', code: 'ARB'  },
+        { text: '올란드', value: '올란드', code: 'ORD'  }
+    ]
+    
+	//1.트리메뉴목록
+	mainGrid = new tui.Grid({
+		el: document.getElementById('mainGrid'),
 		bodyHeight: 200, scrollX: false,
-		rowHeaders: ['rowNum', 'checkbox'],
-		//data: setReadData("<c:url value='/cmm/cmmnCodeDtlList.do'/>"),
+		rowHeaders: ['checkbox','rowNum'],
+		data: setReadData("<c:url value='/cmm/ses/selectSample.do'/>"),
 		columns: 
 		[
-			{header:'cntry', name:'cntry', align:'center', editor: { type: CustomAutoComplete }},
-			{header:'name',  name:'name',  align:'center', formatter: CustomUploader },
-			{header:'birth', name:'birth', align:'center', editor: 'text', defaultValue: '1900.01.01-05'},
-			{header:'phone', name:'phone', align:'center', editor: 'text' }
+			{name:'cntry',      align:'center', editor:{type:'radio',options:{listItems: dlistItems}}, header:'국적'},
+			{name:'name',       align:'center', editor:'text', header:'성명'},
+			{name:'rank',       align:'center', editor:'text', header:'직책'},
+			{name:'birth',      align:'center', editor:'text', header:'생년월일'},
+			{name:'phone',      align:'center', editor:'text', header:'휴대번호'},
+			{name:'sFileName',  align:'center', header:'파일명'},
+			{name:'sFileSize',  align:'center', header:'파일용량'},
+			{name:'sFileType',  align:'center', header:'파일형식'},
+			{name:'downloader', align:'center', renderer: { type: CustomButton }, header:'다운로드'},
+			{name:'uploader',   align:'center', formatter: CustomUploader, header:'업로드'}
 		]
 	});
-	
-	$("#test").autocomplete({
-		source: dataList,
-		fucus:function(event, ui) {
-			return false;
-		},
-		mimLength:1,
-		delay:100
-	});
+	searchGrid();
 });
 
-var dataList = [
-    "종로2가사거리",
-    "창경궁.서울대학교병원",
-    "명륜3가.성대입구",
-    "종로2가.삼일교",
-    "혜화동로터리.여운형활동터",
-    "서대문역사거리",
-    "서울역사박물관.경희궁앞",
-    "서울역사박물관.경희궁앞",
-    "광화문",
-    "광화문",
-    "종로1가",
-    "종로1가",
-    "종로2가",
-    "종로2가",
-    "종로3가.탑골공원",
-    "종로3가.탑골공원",
-    "종로4가.종묘"
-    ];
-    
-function addGridRow() {
-	var rowData = [{cntry: "", name: "", phone: ""}]
-	gridSample.appendRow(rowData,1)
+function gridButtonClick(data) {
+	if(confirm("다운로드하시겠습니까?")){
+		$.ajax({
+			url : "<c:url value='/cmm/ses/downloadSample.do'/>",
+			method :"POST",
+			dataType : "JSON",
+			contentType : "application/json",
+			data : JSON.stringify(data),
+			success : function(result) {
+				(result) ? confirm("정상적으로 저장되었습니다.") : confirm("저장이 실패하였습니다.");
+			},
+			error : function(xhr, status) {
+				confirm("저장이 실패하였습니다.");
+			}
+		});
+	}
 }
 
-function viewGridData() {
-	console.log($(".autocomplete")[0].name);
-	console.log(gridSample.getRow(0));
+function insertSample() {
+	if(confirm("저장하시겠습니까?")){
+		var formData = new FormData();
+		formData.append('egovMap', new Blob([ JSON.stringify(mainGrid.getData()) ], {type : "application/json"}));
+		var fileInput = $('.gridUploader');
+		for (var i = 0; i < fileInput.length; i++) {
+			if (fileInput[i].files.length > 0) {
+				for (var j = 0; j < fileInput[i].files.length; j++) {
+					formData.append(fileInput[i].id, $('.gridUploader')[i].files[j]);
+				}
+			}
+		}
+		$.ajax({
+			url : "<c:url value='/cmm/ses/insertSample.do'/>",
+			method :"POST",
+			data : formData,
+			processData: false,
+			contentType: false,
+			enctype: 'multipart/form-data',
+			success : function(result) {
+				confirm("정상적으로 저장되었습니다.");
+			},
+			error : function(xhr, status) {
+				confirm("저장이 실패하였습니다.");
+			}
+		});
+	}
 }
 
-function autoComplete(e) {
-	console.log(e);
+function deleteSample() {
+	if (mainGrid.getCheckedRows().length == 0) {
+		confirm("삭제할 데이터를 선택해주세요.")
+		return;
+	}
+	if(confirm("삭제하시겠습니까?")){
+		$.ajax({
+			url : "<c:url value='/cmm/ses/deleteSample.do'/>",
+			method :"POST",
+			data : JSON.stringify(mainGrid.getCheckedRows()),
+			dataType : "JSON",
+			contentType : "application/json",
+			success : function(result) {
+				mainGrid.getCheckedRows().forEach(function(data, idx) {
+					mainGrid.removeRow(data['rowKey']);
+				});
+			},
+			error : function(xhr, status) {
+				confirm("삭제가 실패하였습니다.");
+			}
+		});
+	}
+}
+
+function viewFile() {
+	console.log('viewFile');
+}
+
+function searchGrid() {
+	mainGrid.readData(1);
+}
+
+function addRow() {
+	var rowData = [{cntry: "", name: "", rank: "",  birth: "", phone: "", sFileName: "", sFileSize: "", sFileType: ""}];
+	mainGrid.appendRow(rowData);
+}
+
+function delRow() {
+	console.log('delRow');
+	mainGrid.removeRow(1);
 }
 </script>
+<style>
+.gridFileButton {
+	padding: 6px 25px;
+	background-color:#FF6600;
+	border-radius: 4px;
+	color: white;
+	cursor: pointer;
+}
+</style>
 </head>
 <jsp:include page='main_top.jsp'><jsp:param value="${loginVO}" name="loginVO"/></jsp:include>
-<br><br>
-<a id="login" class="btn02" href="#" onclick="addGridRow();return false;">추가</a>
-<a id="login" class="btn02" href="#" onclick="viewGridData();return false;">데이터보기</a>
-<br><br>
-AA:<input type="text" id="test" name="test">
-<br><br>
-	<table>
-	<colgroup>
-		<col style="" />
-	</colgroup>
-	<tr>
-		<td style="vertical-align:top">
-			<div id="gridSample"></div>
-		</td>
-	</tr>
-	</table>
+<br>
+<br>
+<!-- Page content-->
+<table>
+<colgroup>
+	<col style="" />
+</colgroup>
+<tr>
+	<td style="vertical-align:top;text-align:right">
+		<a id="insertSample" class="btn02" href="#" onclick="insertSample();return false;">출입허가신청</a><br><br>
+	</td>
+</tr>
+<tr>
+	<td style="vertical-align:top;text-align:right">
+		<a id="vew" class="btn02" href="#" onclick="viewFile();return false;">파일보기</a>
+		<a id="sel" class="btn02" href="#" onclick="searchGrid();return false;">조회</a>
+		<a id="add" class="btn02" href="#" onclick="addRow();return false;">추가</a>
+		<a id="del" class="btn02" href="#" onclick="deleteSample();return false;">삭제</a><br><br>
+	</td>
+</tr>
+<tr>
+	<td style="vertical-align:top">
+		<div id="mainGrid"></div>
+	</td>
+</tr>
+<!-- 
+<tr>
+	<td style="vertical-align:top">
+		<input type="image" name="img"/>
+	</td>
+</tr>
+<tr>
+	<td style="vertical-align:top">
+		<input type="file" class="upload" name="file1" accept="image/jpeg,.pdf" multiple/>
+		<input type="file" class="upload" name="file2" accept="image/jpeg,.pdf" multiple/>
+	</td>
+</tr>
+ -->
+</table>
+
 </html>

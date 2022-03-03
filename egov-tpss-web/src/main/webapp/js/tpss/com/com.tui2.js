@@ -166,18 +166,6 @@ CustomHeaderCheckBox.prototype.getElement = function() { return this.el; }
 CustomHeaderCheckBox.prototype.render = function(props) { 
 	this.el.checked = props.grid.getRow(props.rowKey).useAt == "Y" ? true : false;
 }
-	
-/* ********************************************************
- * Grid Checkbox Renderer
- ******************************************************** */
-var CustomCheckBox = function(props)  {
-	const el = document.createElement('input');
-	el.type = 'checkbox';
-	el.checked = props.value == "Y" ? true : false;
-	el.onchange = function (e) { props.grid.setValue(props.rowKey, props.columnInfo.name, this.checked ? "Y" : "N"); };
-	this.el = el;
-};
-CustomCheckBox.prototype.getElement = function() { return this.el; }
 
 /* ********************************************************
  * Grid Checkbox Renderer
@@ -190,18 +178,6 @@ var CustomCheckBox = function(props)  {
 	this.el = el;
 };
 CustomCheckBox.prototype.getElement = function() { return this.el; }
-
-/* ********************************************************
- * Grid Button Renderer
- ******************************************************** */
-var CustomButton = function(props)  {
-	const el = document.createElement('input');
-	el.type = 'button';
-	el.value = 'Download';
-	el.onclick = function (e) { gridButtonClick(props.grid.getRow(props.rowKey)); };
-	this.el = el;
-}
-CustomButton.prototype.getElement = function() { return this.el; }
 
 /* ********************************************************
  * Grid Formatter Custom Uploader
@@ -209,24 +185,32 @@ CustomButton.prototype.getElement = function() { return this.el; }
 var CustomUploader = function(props)  {
 	var val = (props.value==null) ? "" : props.value;
 	var html = '';
-	html += '<label class="gridFileButton" for="file_'+props.row.rowKey+'">';
+	html += '<label for="file_'+props.row.rowKey+'">';
 	html += 'Uploader';
-	html += '<input class="gridUploader" type="file" ';
+	html += '<input class="upload" type="file" ';
 	html += 'id="file_'+props.row.rowKey+'" ';
-	html += 'name='+props.row.rowKey+' ';
 	html += 'value='+val+' ';
-	html += 'accept="image/png, image/jpeg,.pdf" ';
-	html += 'onchange="setFileInfo(this, mainGrid,'+props.row.rowKey+')" ';
 	html += 'align="center" style="display:none">';
 	html += '</lable>';
     return html;
 };
 
-function setFileInfo(obj, grid, rowKey) {
-	grid.setValue(rowKey, "sFileName", obj.files[0].name);
-	grid.setValue(rowKey, "sFileSize", obj.files[0].size);
-	grid.setValue(rowKey, "sFileType", obj.files[0].type);
-}
+/* ********************************************************
+ * Grid Editor Custom AutoComplete
+ ******************************************************** */
+var CustomAutoComplete = function(props)  {
+	const el = document.createElement('input');
+	el.type = 'text';
+	el.id = props.columnInfo.name;
+	el.value = (props.value==null) ? "" : String(props.value);
+	el.name = props.columnInfo.name;
+	el.className = "autocomplete";
+	el.setAttribute("list", "countrydata");
+	this.el = el;
+};	
+CustomAutoComplete.prototype.getElement = function() { return this.el; }
+CustomAutoComplete.prototype.getValue = function() { return this.el.value; }
+CustomAutoComplete.prototype.mounted = function() { this.el.select(); }
 
 /* ********************************************************
  * Grid Selected Row Find Sample
