@@ -214,9 +214,9 @@ var CustomUploader = function(props)  {
 	html += '<input class="gridUploader" type="file" ';
 	html += 'id="file_'+props.row.rowKey+'" ';
 	html += 'name='+props.row.rowKey+' ';
-	html += 'value='+val+' ';
-	html += 'accept="image/png, image/jpeg" ';
+	html += 'accept="image/gif, image/png, image/jpeg, .pdf" ';
 	html += 'onchange="setFileInfo(this, mainGrid,'+props.row.rowKey+')" ';
+	html += 'value='+val+' ';
 	html += 'align="center" style="display:none">';
 	html += '</lable>';
     return html;
@@ -226,6 +226,28 @@ function setFileInfo(obj, grid, rowKey) {
 	grid.setValue(rowKey, "sFileName", obj.files[0].name);
 	grid.setValue(rowKey, "sFileSize", obj.files[0].size);
 	grid.setValue(rowKey, "sFileType", obj.files[0].type);
+}
+
+/* ********************************************************
+ * Grid File Download Popup
+ ******************************************************** */
+function fileDownloadOpen(url, data) {
+	var dform = document.createElement("form");
+	dform.setAttribute("method", "post");
+	dform.setAttribute("action", url);
+	dform.setAttribute("target", "_blank");
+	for (var key in data) {
+		if (typeof data[key] == 'string') {
+			var input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = key;
+			input.value = data[key];
+			dform.appendChild(input);		
+		}
+	}
+	document.body.appendChild(dform);
+	dform.submit();
+	document.body.removeChild(form);
 }
 
 /* ********************************************************

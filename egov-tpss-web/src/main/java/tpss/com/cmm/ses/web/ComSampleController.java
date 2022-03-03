@@ -3,8 +3,10 @@ package tpss.com.cmm.ses.web;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +27,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.ModelAndViewDefiningException;
 
 import egovframework.com.cmm.ComDefaultVO;
 import egovframework.com.cmm.EgovBrowserUtil;
-import egovframework.com.cmm.util.EgovBasicLogger;
 import egovframework.com.cmm.util.EgovResourceCloseHelper;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.psl.dataaccess.util.EgovMap;
@@ -47,10 +49,6 @@ public class ComSampleController {
 	@PostMapping(value="/cmm/ses/downloadSample.do")
 	public void downloadSample(@RequestParam Map<String, Object> commandMap,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		//ModelAndView modelAndView = new ModelAndView();
-		//modelAndView.setViewName("jsonView");
-		//Boolean viewResult = true; 
-		
 		SampleVO sampleVO = new SampleVO();
 		sampleVO.setCntry(EgovStringUtil.isNullToString(commandMap.get("cntry")));
 		sampleVO.setName(EgovStringUtil.isNullToString(commandMap.get("name")));
@@ -58,20 +56,18 @@ public class ComSampleController {
 		sampleVO.setsFileType(EgovStringUtil.isNullToString(commandMap.get("sFileType")));
 		SampleVO resultVO = comSampleService.downloadSample(sampleVO);
 		if (resultVO == null || "".equals(EgovStringUtil.isNullToString(resultVO.getsFileName()))) {
-			//viewResult = false;
+			ModelAndView modelAndView = new ModelAndView("redirect:/cmm/init/error.do");
+			throw new ModelAndViewDefiningException(modelAndView);
 		} else {
 			String mimetype = "application/x-msdownload";
 			String userAgent = request.getHeader("User-Agent");
-			HashMap<String,String> result = EgovBrowserUtil.getBrowser(userAgent);
-			if ( !EgovBrowserUtil.MSIE.equals(result.get(EgovBrowserUtil.TYPEKEY)) ) {
+			HashMap<String,String> browser = EgovBrowserUtil.getBrowser(userAgent);
+			if ( !EgovBrowserUtil.MSIE.equals(browser.get(EgovBrowserUtil.TYPEKEY)) ) {
 				mimetype = "application/x-stuff";
 			}
-
 			String contentDisposition = EgovBrowserUtil.getDisposition(resultVO.getsFileName(),userAgent,"UTF-8");
 			response.setContentType(mimetype);
 			response.setHeader("Content-Disposition", contentDisposition);
-			//response.setContentLengthLong(0);
-
 			BufferedInputStream in = null;
 			BufferedOutputStream out = null;
 			try {
@@ -80,15 +76,16 @@ public class ComSampleController {
 				out = new BufferedOutputStream(response.getOutputStream());
 				FileCopyUtils.copy(in, out);
 				out.flush();
+			} catch (FileNotFoundException ex) {
+				ModelAndView modelAndView = new ModelAndView("redirect:/cmm/init/error.do");
+				throw new ModelAndViewDefiningException(modelAndView);
 			} catch (IOException ex) {
-				//viewResult = false;
-				EgovBasicLogger.ignore("IO Exception", ex);
+				ModelAndView modelAndView = new ModelAndView("redirect:/cmm/init/error.do");
+				throw new ModelAndViewDefiningException(modelAndView);
 			} finally {
 				EgovResourceCloseHelper.close(out);
 			}
 		}
-		//modelAndView.addObject("result", viewResult);
-		//return modelAndView;
 	}
 	
 	@PostMapping(value="/cmm/ses/selectSample.do")

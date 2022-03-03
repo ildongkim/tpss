@@ -426,4 +426,9 @@ public class ComInitController {
 		
 		return link;
 	}
+	
+    @RequestMapping(value="/cmm/init/error.do")
+    public String errorpage()  throws Exception {
+        return "tpss/com/init/error/error";
+    }
 }

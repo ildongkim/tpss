@@ -45,22 +45,7 @@ $(document).ready(function()
 
 function gridButtonClick(data) {
 	if(confirm("다운로드하시겠습니까?")){
-		$.ajax({
-			url : "<c:url value='/cmm/ses/downloadSample.do'/>",
-			method :"POST",
-			//processData: false,
-			//contentType: false,
-			data : {cntry:data.cntry, name:data.name, sFileName:data.sFileName, sFileType:data.sFileType},
-			success : function(result) {
-				console.log(result);
-				confirm("정상적으로 저장되었습니다.")
-				//(result) ? confirm("정상적으로 저장되었습니다.") : confirm("저장이 실패하였습니다.");
-			},
-			error : function(xhr, status) {
-				console.log(status);
-				confirm("저장이 실패하였습니다!.");
-			}
-		});
+		fileDownloadOpen("<c:url value='/cmm/ses/downloadSample.do'/>", data);
 	}
 }
 
