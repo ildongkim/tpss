@@ -28,16 +28,16 @@ $(document).ready(function()
 		data: setReadData("<c:url value='/cmm/ses/selectSample.do'/>"),
 		columns: 
 		[
-			{name:'cntry',      align:'center', editor:{type:'radio',options:{listItems: dlistItems}}, header:'국적'},
-			{name:'name',       align:'center', editor:'text', header:'성명'},
-			{name:'rank',       align:'center', editor:'text', header:'직책'},
-			{name:'birth',      align:'center', editor:'text', header:'생년월일'},
-			{name:'phone',      align:'center', editor:'text', header:'휴대번호'},
+			{name:'cntry',      align:'center', validation:{required:true}, editor:{type:'radio', options:{listItems:dlistItems}}, header:'국적'},
+			{name:'name',       align:'center', validation:{required:true}, editor:{type:CustomInputText, options:{maxLength:10} }, header:'성명'},
+			{name:'rank',       align:'center', editor:'text', editor:{type:CustomInputText, options:{maxLength:6} }, header:'직책'},
+			{name:'birth',      align:'center', editor:'text', editor:{type:CustomInputText, options:{maxLength:8} }, header:'생년월일'},
+			{name:'phone',      align:'center', validation:{dataType:'number'}, editor:'text', header:'휴대번호'},
 			{name:'sFileName',  align:'center', header:'파일명'},
 			{name:'sFileSize',  align:'center', header:'파일용량'},
 			{name:'sFileType',  align:'center', header:'파일형식'},
-			{name:'downloader', align:'center', renderer: { type: CustomButton }, header:'다운로드'},
-			{name:'uploader',   align:'center', formatter: CustomUploader, header:'업로드'}
+			{name:'downloader', align:'center', renderer:{type:CustomButton}, header:'다운로드'},
+			{name:'uploader',   align:'center', formatter:CustomUploader, defaultValue:'mainGrid', header:'업로드'}
 		]
 	});
 	searchGrid();
@@ -51,13 +51,16 @@ function gridButtonClick(data) {
 
 function insertSample() {
 	if(confirm("저장하시겠습니까?")){
+		if(mainGrid.validate().length>0) {
+			confirm("입력정보에 오류가 있습니다.");
+			return;
+		}
 		var formData = new FormData();
 		formData.append('egovMap', new Blob([ JSON.stringify(mainGrid.getData()) ], {type : "application/json"}));
 		var fileInput = $('.gridUploader');
 		for (var i = 0; i < fileInput.length; i++) {
 			if (fileInput[i].files.length > 0) {
 				for (var j = 0; j < fileInput[i].files.length; j++) {
-					console.log(fileInput[i].id);
 					formData.append(fileInput[i].id, $('.gridUploader')[i].files[j]);
 				}
 			}
@@ -71,6 +74,7 @@ function insertSample() {
 			enctype: 'multipart/form-data',
 			success : function(result) {
 				confirm("정상적으로 저장되었습니다.");
+				searchGrid();
 			},
 			error : function(xhr, status) {
 				confirm("저장이 실패하였습니다.");
@@ -103,8 +107,8 @@ function deleteSample() {
 	}
 }
 
-function viewFile() {
-	console.log('viewFile');
+function gridValidate() {
+	$('#validCn').val(gridInputValidation(mainGrid));
 }
 
 function searchGrid() {
@@ -146,7 +150,7 @@ function delRow() {
 </tr>
 <tr>
 	<td style="vertical-align:top;text-align:right">
-		<a id="vew" class="btn02" href="#" onclick="viewFile();return false;">파일보기</a>
+		<a id="vew" class="btn02" href="#" onclick="gridValidate();return false;">입력값검증</a>
 		<a id="sel" class="btn02" href="#" onclick="searchGrid();return false;">조회</a>
 		<a id="add" class="btn02" href="#" onclick="addRow();return false;">추가</a>
 		<a id="del" class="btn02" href="#" onclick="deleteSample();return false;">삭제</a><br><br>
@@ -155,6 +159,12 @@ function delRow() {
 <tr>
 	<td style="vertical-align:top">
 		<div id="mainGrid"></div>
+	</td>
+</tr>
+<tr>
+	<td style="vertical-align:top">
+		<br><br>
+		<textarea id="validCn" name="validCn" cols="150" rows="15"></textarea>
 	</td>
 </tr>
 <!-- 

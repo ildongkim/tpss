@@ -204,10 +204,26 @@ var CustomButton = function(props)  {
 CustomButton.prototype.getElement = function() { return this.el; }
 
 /* ********************************************************
+ * Grid Input Text Editor
+ ******************************************************** */
+var CustomInputText = function(props)  {
+	var val = (props.value==null) ? null : props.value;
+	const { maxLength } = props.columnInfo.editor.options;
+	const el = document.createElement('input');
+	el.type = 'text';
+	el.maxLength = maxLength;
+	el.value = val;
+	this.el = el;
+}
+CustomInputText.prototype.getElement = function() { return this.el; }
+CustomInputText.prototype.getValue = function() { return this.el.value; }
+CustomInputText.prototype.mounted = function() { return el.select(); }
+
+/* ********************************************************
  * Grid Formatter Custom Uploader
  ******************************************************** */
 var CustomUploader = function(props)  {
-	var val = (props.value==null) ? "" : props.value;
+	var val = (props.value==null) ? null : props.value;
 	var html = '';
 	html += '<label class="gridFileButton" for="file_'+props.row.rowKey+'">';
 	html += 'Uploader';
@@ -215,17 +231,19 @@ var CustomUploader = function(props)  {
 	html += 'id="file_'+props.row.rowKey+'" ';
 	html += 'name='+props.row.rowKey+' ';
 	html += 'accept="image/gif, image/png, image/jpeg, .pdf" ';
-	html += 'onchange="setFileInfo(this, mainGrid,'+props.row.rowKey+')" ';
-	html += 'value='+val+' ';
+	html += 'onchange="setFileInfo(this, '+val+','+props.row.rowKey+')" ';
+	//html += 'value='+val+' ';
 	html += 'align="center" style="display:none">';
 	html += '</lable>';
     return html;
 };
 
 function setFileInfo(obj, grid, rowKey) {
-	grid.setValue(rowKey, "sFileName", obj.files[0].name);
-	grid.setValue(rowKey, "sFileSize", obj.files[0].size);
-	grid.setValue(rowKey, "sFileType", obj.files[0].type);
+	if (grid != null) {
+		grid.setValue(rowKey, "sFileName", obj.files[0].name);
+		grid.setValue(rowKey, "sFileSize", obj.files[0].size);
+		grid.setValue(rowKey, "sFileType", obj.files[0].type);
+	}
 }
 
 /* ********************************************************
@@ -247,7 +265,30 @@ function fileDownloadOpen(url, data) {
 	}
 	document.body.appendChild(dform);
 	dform.submit();
-	document.body.removeChild(form);
+	document.body.removeChild(dform);
+}
+
+/* ********************************************************
+ * Grid File Download Popup
+ ******************************************************** */
+function gridInputValidation(grid) {
+	var text="", rowMsg="", rowHead="", errMsg="";
+	if (grid.validate().length>0) {
+		grid.validate().forEach(function(data, idx) {
+			rowMsg = data.rowKey+1+"번째 행의 ";
+			data.errors.forEach(function(error, idx) {
+				rowHead = "["+grid.getColumn(error.columnName).header+"] ";
+				error.errorInfo.forEach(function(info, idx) {
+					switch (info.code) {
+						case "REQUIRED": errMsg = "값을 입력하세요."; break;
+						case "TYPE_NUMBER": errMsg = "값에 숫자를 입력하세요."; break;
+					}
+					text += rowMsg+rowHead+errMsg+" \n";
+				});
+			});
+		});		
+	}
+	return text;
 }
 
 /* ********************************************************
