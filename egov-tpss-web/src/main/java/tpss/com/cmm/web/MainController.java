@@ -1,5 +1,6 @@
 package tpss.com.cmm.web;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -12,17 +13,23 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
+import egovframework.com.cmm.ComDefaultCodeVO;
+import egovframework.com.cmm.ComDefaultVO;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.LoginVO;
+import egovframework.com.cmm.service.CmmnDetailCode;
+import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.service.EgovProperties;
 import egovframework.com.cmm.service.Globals;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.uat.uia.service.EgovLoginService;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
+import egovframework.rte.fdl.property.EgovPropertyService;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 
 @Controller
 public class MainController implements ApplicationContextAware, InitializingBean {
@@ -38,14 +45,18 @@ public class MainController implements ApplicationContextAware, InitializingBean
 		LOGGER.info("MainController setApplicationContext method has called!");
 	}
 
-	/** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
 	EgovMessageSource egovMessageSource;
 	
-	/** EgovLoginService */
 	@Resource(name = "loginService")
 	private EgovLoginService loginService;
 	
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertiesService;
+    
+    @Resource(name = "EgovCmmUseService")
+    private EgovCmmUseService cmmUseService;
+    
 	@RequestMapping("/cmm/maintop.do")
 	public String top() {
 		return "tpss/com/main_top";
@@ -93,20 +104,6 @@ public class MainController implements ApplicationContextAware, InitializingBean
 	}
 	
 	/**
-	 * 세션타임아웃 시간을 연장한다.
-	 * Cookie에 egovLatestServerTime, egovExpireSessionTime 기록하도록 한다.
-	 * @return result - String
-	 * @exception Exception
-	 */
-	@RequestMapping(value="/cmm/refreshSessionTimeout.do")
-	public ModelAndView refreshSessionTimeout(@RequestParam Map<String, Object> commandMap) throws Exception {
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("jsonView");
-		modelAndView.addObject("result", "ok");
-		return modelAndView;
-	}
-	
-	/**
 	 * 비밀번호 유효기간 팝업을 출력한다.
 	 * Cookie에 egovLatestServerTime, egovExpireSessionTime 기록하도록 한다.
 	 * @return result - String
@@ -147,4 +144,42 @@ public class MainController implements ApplicationContextAware, InitializingBean
 		
 		return "egovframework/com/uat/uia/EgovExpirePwd";
 	}
+	
+    /**
+     * 국가명을 조회한다.
+     * @param searchVO ComDefaultVO
+     * @return 출력페이지정보 "/cmm/cntryListSearch"
+     * @exception Exception
+     */
+    @RequestMapping(value="/cmm/ses/cntryListSearch.do")
+    public String selectProgrmListSearch(
+    		@ModelAttribute("searchVO") ComDefaultVO searchVO,
+    		ModelMap model)
+            throws Exception {
+    	
+    	// 내역 조회
+    	searchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+    	searchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+    	/** pageing */
+    	PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(searchVO.getPageUnit());
+		paginationInfo.setPageSize(searchVO.getPageSize());
+
+		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		searchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		ComDefaultCodeVO vo = new ComDefaultCodeVO();
+		
+        List<CmmnDetailCode> list_code = cmmUseService.selectCmmCodeDetail(vo);
+        model.addAttribute("list_code", list_code);
+
+        //int totCnt = progrmManageService.selectProgrmListTotCnt(searchVO);
+		//paginationInfo.setTotalRecordCount(totCnt);
+        //model.addAttribute("paginationInfo", paginationInfo);
+
+        return "tpss/com/ses/cntrysearch";
+    }
 }

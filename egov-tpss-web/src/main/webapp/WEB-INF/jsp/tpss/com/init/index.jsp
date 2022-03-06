@@ -4,10 +4,29 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link href="<c:url value="/css/egovframework/com/cmm/jqueryui.css"/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/modules/tui-grid/dist/tui-grid.min.css' />" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<c:url value='/js/egovframework/com/cmm/jquery.js'/>" ></script>
 <script type="text/javascript" src="<c:url value='/modules/tui-grid/dist/tui-grid.js'/>" ></script>
 <script type="text/javascript" src="<c:url value='/js/tpss/com/com.tui.js'/>" ></script>
+<style>
+.gridFileButton {
+	padding: 6px 25px;
+	background-color:#FF6600;
+	border-radius: 4px;
+	color: white;
+	cursor: pointer;
+}
+.gridButton {
+	padding: 6px 25px;
+	background-color:#6666CC;
+	border-radius: 4px;
+	color: white;
+	cursor: pointer;
+	width:80px;
+	height:23px;
+}
+</style>
 <script type="text/javaScript" language="javascript">
 /* ********************************************************
 * document.ready 처리 함수
@@ -15,9 +34,11 @@
 $(document).ready(function() 
 {
 	var dlistItems = [
-        { text: '대한민국', value: '대한민국', code: 'KOR' },
-        { text: '아루바', value: '아루바', code: 'ARB'  },
-        { text: '올란드', value: '올란드', code: 'ORD'  }
+        { text: '차장', value: '차장', code: 'A01' },
+        { text: '과장', value: '과장', code: 'A02'  },
+        { text: '대리', value: '대리', code: 'A03'  },
+        { text: '주입', value: '주입', code: 'A04'  },
+        { text: '사원', value: '사원', code: 'A05'  }
     ]
     
 	//1.트리메뉴목록
@@ -26,26 +47,43 @@ $(document).ready(function()
 		bodyHeight: 200, scrollX: false,
 		rowHeaders: ['checkbox','rowNum'],
 		data: setReadData("<c:url value='/cmm/ses/selectSample.do'/>"),
+		header: {
+			complexColumns: [
+				{header:'국적', name:'hCntry', childNames: ['cntry', 'bCntry'], hideChildHeaders: true}
+			],
+		},
 		columns: 
 		[
-			{name:'cntry',      align:'center', validation:{required:true}, editor:{type:'radio', options:{listItems:dlistItems}}, header:'국적'},
-			{name:'name',       align:'center', validation:{required:true}, editor:{type:CustomInputText, options:{maxLength:10} }, header:'성명'},
-			{name:'rank',       align:'center', editor:'text', editor:{type:CustomInputText, options:{maxLength:6} }, header:'직책'},
-			{name:'birth',      align:'center', editor:'text', editor:{type:CustomInputText, options:{maxLength:8} }, header:'생년월일'},
-			{name:'phone',      align:'center', validation:{dataType:'number'}, editor:'text', header:'휴대번호'},
+			{name:'cntry',      align:'center', editor:{type:CustomInputText, options:{maxLength:10} }, validation:{required:true}},
+			{name:'bCntry',     align:'center', renderer:{type:CustomButton}, defaultValue:'조회'},
+			{name:'name',       align:'center', editor:{type:CustomInputText, options:{maxLength:10} }, validation:{required:true}, header:'성명'},
+			{name:'rank',       align:'center', editor:{type:'radio', options:{listItems:dlistItems}}, header:'직책'},
+			{name:'birth',      align:'center', editor:{type:CustomInputText, options:{maxLength:8} }, header:'생년월일'},
+			{name:'phone',      align:'center', editor:{type:CustomInputText, options:{maxLength:11} }, validation:{dataType:'number'}, header:'휴대번호'},
 			{name:'sFileName',  align:'center', header:'파일명'},
 			{name:'sFileSize',  align:'center', header:'파일용량'},
 			{name:'sFileType',  align:'center', header:'파일형식'},
-			{name:'downloader', align:'center', renderer:{type:CustomButton}, header:'다운로드'},
+			{name:'downloader', align:'center', renderer:{type:CustomButton}, defaultValue:'Download', header:'다운로드'},
 			{name:'uploader',   align:'center', formatter:CustomUploader, defaultValue:'mainGrid', header:'업로드'}
 		]
 	});
 	searchGrid();
 });
 
-function gridButtonClick(data) {
-	if(confirm("다운로드하시겠습니까?")){
-		fileDownloadOpen("<c:url value='/cmm/ses/downloadSample.do'/>", data);
+function gridButtonClick(obj, data) {
+	switch (obj) {
+		case "Download":
+			if(confirm("다운로드하시겠습니까?")){
+				fileDownloadOpen("<c:url value='/cmm/ses/downloadSample.do'/>", data);
+			}			
+		break;
+		case "조회":
+			const options = {
+				pagetitle : $(this).attr("title"), width: 550, height: 650,
+				pageUrl : "<c:url value='/cmm/ses/cntryListSearch.do'/>"
+			};
+			settingDialog(options);
+		break;		
 	}
 }
 
@@ -125,15 +163,6 @@ function delRow() {
 	mainGrid.removeRow(1);
 }
 </script>
-<style>
-.gridFileButton {
-	padding: 6px 25px;
-	background-color:#FF6600;
-	border-radius: 4px;
-	color: white;
-	cursor: pointer;
-}
-</style>
 </head>
 <jsp:include page='main_top.jsp'><jsp:param value="${loginVO}" name="loginVO"/></jsp:include>
 <br>

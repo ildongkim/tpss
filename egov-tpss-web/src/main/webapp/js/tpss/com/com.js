@@ -74,9 +74,9 @@ function reqTimeAjax() {
 		alert('시간을 연장할수 없습니다.');
 		return;
 	}
-
+	
 	$.ajax({
-		url:'${pageContext.request.contextPath}/cmm/refreshSessionTimeout.do', //request 보낼 서버의 경로
+		url:'cmm/refreshSessionTimeout.do', //request 보낼 서버의 경로
 		type:'get', // 메소드(get, post, put 등)
 		data:{}, //보낼 데이터
 		success: function(data) {
@@ -130,6 +130,14 @@ function goFindId() {
 		pageUrl : findIdUrl
 	};
 	settingDialog(options);
+}
+
+/*********************************************************
+* 본인인증
+******************************************************** */
+function goNiceId() {
+	document.loginForm.action=niceUrl;
+	document.loginForm.submit();
 }
 
 /*********************************************************

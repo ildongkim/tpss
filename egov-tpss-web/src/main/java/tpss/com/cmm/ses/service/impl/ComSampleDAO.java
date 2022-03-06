@@ -17,7 +17,7 @@ public class ComSampleDAO extends EgovComAbstractDAO {
         insert("ComSampleDAO.insertSample", egovMap);
     }
     
-	public List<?> selectSample(ComDefaultVO vo) throws Exception{
+	public List<EgovMap> selectSample(ComDefaultVO vo) throws Exception{
 		return selectList("ComSampleDAO.selectSample", vo);
 	}
 	

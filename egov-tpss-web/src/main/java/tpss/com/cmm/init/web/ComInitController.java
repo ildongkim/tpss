@@ -27,6 +27,7 @@ import egovframework.com.uat.uia.service.EgovLoginService;
 import egovframework.com.uss.umt.service.EgovMberManageService;
 import egovframework.com.uss.umt.service.MberManageVO;
 import egovframework.com.uss.umt.service.UserDefaultVO;
+import egovframework.com.utl.fcc.service.EgovStringUtil;
 
 /**
  * 비로그인 서비스를 처리하는 컨트롤러 클래스
@@ -110,6 +111,36 @@ public class ComInitController {
 		return "tpss/com/init/index";
 	}
 
+	/**
+	 * 본인인증 (세션) 로그인을 처리한다
+	 * @param vo - 이름, 생년월일, 휴대폰번호 LoginVO
+	 * @param request - 세션처리를 위한 HttpServletRequest
+	 * @return result - 로그인결과(세션정보)
+	 * @exception Exception
+	 */
+	@RequestMapping(value = "/cmm/ses/actionLogin.do")
+	public String actionLogin(@RequestParam Map<String, Object> commandMap, HttpServletRequest request) throws Exception {
+		// 1. 로그인 처리
+		LoginVO resultVO = new LoginVO();
+		resultVO.setName(EgovStringUtil.isNullToString(commandMap.get("name")));
+		request.getSession().setAttribute("loginVO", resultVO);
+		return "redirect:/";
+	}
+	
+	/**
+	 * 세션타임아웃 시간을 연장한다.
+	 * Cookie에 egovLatestServerTime, egovExpireSessionTime 기록하도록 한다.
+	 * @return result - String
+	 * @exception Exception
+	 */
+	@RequestMapping(value="/cmm/refreshSessionTimeout.do")
+	public ModelAndView refreshSessionTimeout(HttpServletRequest request) throws Exception {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("jsonView");
+		modelAndView.addObject("result", "ok");
+		return modelAndView;
+	}
+	
 	/**
 	 * 로그아웃한다.
 	 * @return String
@@ -216,6 +247,27 @@ public class ComInitController {
 		model.addAttribute("sbscrbTy", sbscrbTy); //회원가입유형 포함
 
 		return "tpss/com/init/EgovStplatCnfirm";
+	}
+	
+	/**
+	 * 본인확인
+	 * @param model 화면모델
+	 * @return NiceCnfirm
+	 * @throws Exception
+	 */
+	@RequestMapping("/cmm/init/NiceCnfirm.do")
+	public String niceCnfirm(ModelMap model) throws Exception {
+
+		//일반회원용 약관 아이디 설정
+		String stplatId = "STPLAT_0000000000001";
+		//회원가입유형 설정-일반회원
+		String sbscrbTy = "USR01";
+		//약관정보 조회
+		List<?> stplatList = mberManageService.selectStplat(stplatId);
+		model.addAttribute("stplatList", stplatList); //약관정보 포함
+		model.addAttribute("sbscrbTy", sbscrbTy); //회원가입유형 포함
+
+		return "tpss/com/ses/NiceCnfirm";
 	}
 	
 	/**

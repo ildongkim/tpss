@@ -195,10 +195,12 @@ CustomCheckBox.prototype.getElement = function() { return this.el; }
  * Grid Button Renderer
  ******************************************************** */
 var CustomButton = function(props)  {
+	var val = (props.value==null) ? null : props.value;
 	const el = document.createElement('input');
 	el.type = 'button';
-	el.value = 'Download';
-	el.onclick = function (e) { gridButtonClick(props.grid.getRow(props.rowKey)); };
+	el.className = 'gridButton';
+	el.value = val;
+	el.onclick = function (e) { gridButtonClick(val,props.grid.getRow(props.rowKey)); };
 	this.el = el;
 }
 CustomButton.prototype.getElement = function() { return this.el; }
@@ -217,7 +219,7 @@ var CustomInputText = function(props)  {
 }
 CustomInputText.prototype.getElement = function() { return this.el; }
 CustomInputText.prototype.getValue = function() { return this.el.value; }
-CustomInputText.prototype.mounted = function() { return el.select(); }
+CustomInputText.prototype.mounted = function() { return this.el.select(); }
 
 /* ********************************************************
  * Grid Formatter Custom Uploader

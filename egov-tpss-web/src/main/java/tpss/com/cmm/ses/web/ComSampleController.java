@@ -6,8 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import egovframework.com.cmm.ComDefaultVO;
 import egovframework.com.cmm.EgovBrowserUtil;
 import egovframework.com.cmm.util.EgovResourceCloseHelper;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
+import egovframework.rte.fdl.cryptography.EgovEnvCryptoService;
 import egovframework.rte.psl.dataaccess.util.EgovMap;
 import tpss.com.cmm.ses.service.ComSampleService;
 import tpss.com.cmm.ses.service.SampleVO;
@@ -46,13 +48,17 @@ public class ComSampleController {
 	@Resource(name = "comSampleService")
 	private ComSampleService comSampleService;
 	
+	/** 암호화서비스 */
+	@Resource(name = "egovEnvCryptoService")
+	EgovEnvCryptoService cryptoService;
+	
 	@PostMapping(value="/cmm/ses/downloadSample.do")
 	public void downloadSample(@RequestParam Map<String, Object> commandMap,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SampleVO sampleVO = new SampleVO();
 		sampleVO.setCntry(EgovStringUtil.isNullToString(commandMap.get("cntry")));
 		sampleVO.setName(EgovStringUtil.isNullToString(commandMap.get("name")));
-		sampleVO.setsFileName(EgovStringUtil.isNullToString(commandMap.get("sFileName")));
+		sampleVO.setsFileName(this.encrypt(commandMap.get("sFileName")));
 		sampleVO.setsFileType(EgovStringUtil.isNullToString(commandMap.get("sFileType")));
 		SampleVO resultVO = comSampleService.downloadSample(sampleVO);
 		if (resultVO == null || "".equals(EgovStringUtil.isNullToString(resultVO.getsFileName()))) {
@@ -65,7 +71,7 @@ public class ComSampleController {
 			if ( !EgovBrowserUtil.MSIE.equals(browser.get(EgovBrowserUtil.TYPEKEY)) ) {
 				mimetype = "application/x-stuff";
 			}
-			String contentDisposition = EgovBrowserUtil.getDisposition(resultVO.getsFileName(),userAgent,"UTF-8");
+			String contentDisposition = EgovBrowserUtil.getDisposition(this.decrypt(resultVO.getsFileName()),userAgent,"UTF-8");
 			response.setContentType(mimetype);
 			response.setHeader("Content-Disposition", contentDisposition);
 			BufferedInputStream in = null;
@@ -92,13 +98,15 @@ public class ComSampleController {
 	public ModelAndView selectSample(@RequestParam Map<String, Object> commandMap) throws Exception {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("jsonView");
-		
 		ComDefaultVO searchVO = new ComDefaultVO();
+		List<EgovMap> result = comSampleService.selectSample(searchVO);
+		for (EgovMap _child : result) {
+			_child.put("sFileName", this.decrypt(_child.get("sFileName")));
+		}
 		EgovMap contents = new EgovMap();
-		contents.put("contents", comSampleService.selectSample(searchVO));
+		contents.put("contents", result);
 		modelAndView.addObject("data", contents);
 		modelAndView.addObject("result", true);
-		
 		return modelAndView;
 	}
 	
@@ -118,7 +126,7 @@ public class ComSampleController {
 				inputstream = multipartFile.getInputStream();
 				file = IOUtils.toByteArray(inputstream);
 				egovMap.put("sFile", file);
-				egovMap.put("sFileName", multipartFile.getOriginalFilename());
+				egovMap.put("sFileName", this.encrypt(multipartFile.getOriginalFilename()));
 				egovMap.put("sFileSize", multipartFile.getSize());
 				egovMap.put("sFileType", multipartFile.getContentType());
 			}
@@ -133,5 +141,33 @@ public class ComSampleController {
 		modelAndView.setViewName("jsonView");
 		comSampleService.deleteSample(sampleVOList);
 		return modelAndView;		
-	}	
+	}
+	
+    private String encrypt(Object object) {
+    	String encrypt = "";
+    	try {
+    		if (object != null) {
+    			encrypt = cryptoService.encrypt(object.toString());
+    		}
+        } catch(IllegalArgumentException e) {
+    		LOGGER.error("[IllegalArgumentException] Try/Catch...usingParameters Runing : "+ e.getMessage());
+        } catch (Exception e) {
+        	LOGGER.error("[" + e.getClass() +"] :" + e.getMessage());
+        }
+		return encrypt;
+    }
+    
+    private String decrypt(Object object){
+    	String decrypt = "";
+    	try {
+    		if (object != null) {
+    			decrypt = cryptoService.decrypt(object.toString());
+    		}    		
+        } catch(IllegalArgumentException e) {
+    		LOGGER.error("[IllegalArgumentException] Try/Catch...usingParameters Runing : "+ e.getMessage());
+        } catch (Exception e) {
+        	LOGGER.error("[" + e.getClass() +"] :" + e.getMessage());
+        }
+		return decrypt;
+    }    
 }

@@ -71,7 +71,7 @@ function fnDisAgree(){
 <jsp:include page='../init/main_top.jsp'><jsp:param value="${loginVO}" name="loginVO"/></jsp:include>
 <noscript class="noScriptTitle"><spring:message code="common.noScriptTitle.msg" /></noscript>
 
-<form name="QustnrManageForm" action="<c:url value='/cmm/sec/actionLogin.do'/>" method="post">
+<form name="QustnrManageForm" action="<c:url value='/cmm/ses/actionLogin.do'/>" method="post">
 <div class="wTableFrm">
 		<!-- 타이틀 -->
 		<h2>${pageTitle}</h2>

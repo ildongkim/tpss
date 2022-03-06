@@ -24,7 +24,7 @@ public class ComSampleServiceImpl extends EgovAbstractServiceImpl implements Com
 	}
 	
 	@Override
-	public List<?> selectSample(ComDefaultVO vo) throws Exception {
+	public List<EgovMap> selectSample(ComDefaultVO vo) throws Exception {
    		return comSampleDAO.selectSample(vo);
 	}
 	

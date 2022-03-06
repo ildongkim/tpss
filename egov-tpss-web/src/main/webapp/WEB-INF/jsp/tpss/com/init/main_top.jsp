@@ -9,6 +9,7 @@ var loginUrl = "<c:url value='/cmm/init/actionLogin.do'/>";
 var logoutUrl = "<c:url value='/cmm/init/actionLogout.do'/>";
 var regiUrl = "<c:url value='/cmm/init/EgovStplatCnfirmMber.do'/>";
 var findIdUrl = "<c:url value='/cmm/init/searchIdPassword.do'/>";
+var niceUrl = "<c:url value='/cmm/init/NiceCnfirm.do'/>";
 /* ********************************************************
 * document.ready 처리 함수
 ******************************************************** */
@@ -31,6 +32,7 @@ $(document).ready(function()
 				<a id="login" class="btn02" href="#" onclick="actionLogin();return false;">로그인</a>
 				<a id="regiUsr" class="btn02" href="#" onclick="goRegiUsr();return false;">회원가입</a>
 				<a id="findId" class="btn02" href="#" onclick="goFindId();return false;">ID/PW찾기</a>
+				<a id="niceId" class="btn02" href="#" onclick="goNiceId();return false;">본인인증</a>
 				<label for="message"/>
 			</c:if>
 			<c:if test="${loginVO != null}">
