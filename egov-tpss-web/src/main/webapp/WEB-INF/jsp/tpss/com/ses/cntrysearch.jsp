@@ -30,42 +30,29 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>국가명검색</title>
 <link href="<c:url value="/css/egovframework/com/com.css"/>" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<c:url value='/js/egovframework/com/cmm/jquery.js'/>" ></script>
+<script type="text/javascript" src="<c:url value='/modules/tui-grid/dist/tui-grid.js'/>" ></script>
 <script language="javascript1.2"  type="text/javaScript">
 <!--
 /* ********************************************************
- * 페이징 처리 함수
- ******************************************************** */
-function linkPage(pageNo){
-	document.progrmManageForm.pageIndex.value = pageNo;
-	document.progrmManageForm.action = "<c:url value='/cmm/programListSearch.do'/>";
-   	document.progrmManageForm.submit();
-}
-
-/* ********************************************************
  * 조회 처리 함수
  ******************************************************** */
-function selectProgramListSearch() {	
-	document.progrmManageForm.pageIndex.value = 1;
-	document.progrmManageForm.action = "<c:url value='/cmm/programListSearch.do'/>";
-	document.progrmManageForm.submit();
+function selectCodeSearch() {	
+	document.ComDefaultCodeForm.submit();
 }
 
 /* ********************************************************
  * 프로그램목록 선택 처리 함수
  ******************************************************** */
-function choisProgramListSearch(vFileNm) {
-	//eval("opener.document.all."+opener.document.all.tmp_SearchElementName.value).value = vFileNm;
-	//opener.document.menuManageVO.progrmFileNm.value = vFileNm;
-	var parentFrom = parent.document.getElementsByTagName('form');
-	parentFrom[0].progrmFileNm.value = vFileNm;
-    parent.$('.ui-dialog-content').dialog('close');
+function choisCodeSearch(codeNm) {
+	parent.setCntry("${pRowKey}",codeNm);
+	parent.$('.ui-dialog-content').dialog('close');
 }
 -->
 </script>
 </head>
 <body>
-<form name="progrmManageForm" action ="<c:url value='/cmm/programListSearch.do'/>" method="post">
-<input name="pageIndex" type="hidden" value="<c:out value='${searchVO.pageIndex}'/>"/>
+<form name="ComDefaultCodeForm" action ="<c:url value='/cmm/ComDefaultCodeSearch.do'/>" method="post">
 <div class="board" style="width:480px">
 	<h1>국가명조회</h1>
 
@@ -74,7 +61,7 @@ function choisProgramListSearch(vFileNm) {
 			<li>
 				<label for="">국가명 : </label><!-- 프로그램명 -->
 				<input class="s_input2 vat" name="searchKeyword" type="text"  value='<c:out value="${searchVO.searchKeyword}"/>'  size="30" maxlength="60" title="검색조건" /><!-- 검색조건 -->
-				<input class="s_btn" type="submit" value='조회' title="조회" onclick="selectProgramListSearch(); return false;" /><!-- 조회 -->
+				<input class="s_btn" type="submit" value='조회' title="조회" onclick="selectCodeSearch(); return false;" /><!-- 조회 -->
 			</li>
 		</ul>
 	</div>
@@ -95,21 +82,13 @@ function choisProgramListSearch(vFileNm) {
 			<c:forEach var="result" items="${list_code}" varStatus="status">
 			  <tr>
 			    <td>
-			      <span class="link"><a href="#LINK" onclick="choisProgramListSearch('<c:out value="${result.code}"/>'); return false;">
+			      <span class="link"><a href="#LINK" onclick="choisCodeSearch('<c:out value="${result.codeNm}"/>'); return false;">
 			      <c:out value="${result.code}"/></a></span></td>
 			    <td><c:out value="${result.codeNm}"/></td>
 			  </tr>
 			 </c:forEach>
 		</tbody>
 	</table>
-
-	<!-- paging navigation
-	<div class="pagination">
-		<ul>
-			<ui:pagination paginationInfo="${paginationInfo}" type="image" jsFunction="linkPage"/>
-		</ul>
-	</div>
-	 -->
 </div>
 
 </form>

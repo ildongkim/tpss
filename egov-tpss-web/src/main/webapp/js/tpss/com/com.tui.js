@@ -200,7 +200,7 @@ var CustomButton = function(props)  {
 	el.type = 'button';
 	el.className = 'gridButton';
 	el.value = val;
-	el.onclick = function (e) { gridButtonClick(val,props.grid.getRow(props.rowKey)); };
+	el.onclick = function (e) { gridButtonClick(val,props.grid.getRow(props.rowKey),props.rowKey); };
 	this.el = el;
 }
 CustomButton.prototype.getElement = function() { return this.el; }

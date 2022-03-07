@@ -51,12 +51,6 @@ public class MainController implements ApplicationContextAware, InitializingBean
 	@Resource(name = "loginService")
 	private EgovLoginService loginService;
 	
-    @Resource(name = "propertiesService")
-    protected EgovPropertyService propertiesService;
-    
-    @Resource(name = "EgovCmmUseService")
-    private EgovCmmUseService cmmUseService;
-    
 	@RequestMapping("/cmm/maintop.do")
 	public String top() {
 		return "tpss/com/main_top";
@@ -144,42 +138,4 @@ public class MainController implements ApplicationContextAware, InitializingBean
 		
 		return "egovframework/com/uat/uia/EgovExpirePwd";
 	}
-	
-    /**
-     * 국가명을 조회한다.
-     * @param searchVO ComDefaultVO
-     * @return 출력페이지정보 "/cmm/cntryListSearch"
-     * @exception Exception
-     */
-    @RequestMapping(value="/cmm/ses/cntryListSearch.do")
-    public String selectProgrmListSearch(
-    		@ModelAttribute("searchVO") ComDefaultVO searchVO,
-    		ModelMap model)
-            throws Exception {
-    	
-    	// 내역 조회
-    	searchVO.setPageUnit(propertiesService.getInt("pageUnit"));
-    	searchVO.setPageSize(propertiesService.getInt("pageSize"));
-
-    	/** pageing */
-    	PaginationInfo paginationInfo = new PaginationInfo();
-		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
-		paginationInfo.setRecordCountPerPage(searchVO.getPageUnit());
-		paginationInfo.setPageSize(searchVO.getPageSize());
-
-		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
-		searchVO.setLastIndex(paginationInfo.getLastRecordIndex());
-		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
-
-		ComDefaultCodeVO vo = new ComDefaultCodeVO();
-		
-        List<CmmnDetailCode> list_code = cmmUseService.selectCmmCodeDetail(vo);
-        model.addAttribute("list_code", list_code);
-
-        //int totCnt = progrmManageService.selectProgrmListTotCnt(searchVO);
-		//paginationInfo.setTotalRecordCount(totCnt);
-        //model.addAttribute("paginationInfo", paginationInfo);
-
-        return "tpss/com/ses/cntrysearch";
-    }
 }

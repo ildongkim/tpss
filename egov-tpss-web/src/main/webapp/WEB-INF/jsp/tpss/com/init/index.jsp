@@ -70,7 +70,7 @@ $(document).ready(function()
 	searchGrid();
 });
 
-function gridButtonClick(obj, data) {
+function gridButtonClick(obj, data, rowKey) {
 	switch (obj) {
 		case "Download":
 			if(confirm("다운로드하시겠습니까?")){
@@ -80,12 +80,20 @@ function gridButtonClick(obj, data) {
 		case "조회":
 			const options = {
 				pagetitle : $(this).attr("title"), width: 550, height: 650,
-				pageUrl : "<c:url value='/cmm/ses/cntryListSearch.do'/>"
+				pageUrl : "<c:url value='/cmm/ses/cntryListSearch.do'/>"+"?rowKey="+rowKey,
 			};
-			settingDialog(options);
+			cntryDialog(options);
 		break;		
 	}
 }
+
+function cntryDialog(options) {
+	$dialog = $('<div></div>')
+	.html('<iframe style="border: 0px; " src="' + options['pageUrl'] + '" width="100%" height="100%"></iframe>')
+	.dialog({autoOpen: false, modal: true, width: options['width'], height: options['height'], title: options['pagetitle']});
+	$dialog.dialog('open');
+	$('.ui-dialog').css('z-index', '120');
+} 
 
 function insertSample() {
 	if(confirm("저장하시겠습니까?")){
@@ -145,6 +153,10 @@ function deleteSample() {
 	}
 }
 
+function setCntry(rowKey, data) {
+	mainGrid.setValue(rowKey, "cntry", data);
+}
+
 function gridValidate() {
 	$('#validCn').val(gridInputValidation(mainGrid));
 }
@@ -187,7 +199,7 @@ function delRow() {
 </tr>
 <tr>
 	<td style="vertical-align:top">
-		<div id="mainGrid"></div>
+		<div id="mainGrid" name="mainGrid"></div>
 	</td>
 </tr>
 <tr>

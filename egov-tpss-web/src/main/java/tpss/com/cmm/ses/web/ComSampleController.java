@@ -20,9 +20,12 @@ import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,12 +33,17 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 
+import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.ComDefaultVO;
 import egovframework.com.cmm.EgovBrowserUtil;
+import egovframework.com.cmm.service.CmmnDetailCode;
+import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovResourceCloseHelper;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.fdl.cryptography.EgovEnvCryptoService;
+import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.psl.dataaccess.util.EgovMap;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import tpss.com.cmm.ses.service.ComSampleService;
 import tpss.com.cmm.ses.service.SampleVO;
 
@@ -52,6 +60,12 @@ public class ComSampleController {
 	@Resource(name = "egovEnvCryptoService")
 	EgovEnvCryptoService cryptoService;
 	
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertiesService;
+    
+    @Resource(name = "EgovCmmUseService")
+    private EgovCmmUseService cmmUseService;
+    
 	@PostMapping(value="/cmm/ses/downloadSample.do")
 	public void downloadSample(@RequestParam Map<String, Object> commandMap,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -143,6 +157,28 @@ public class ComSampleController {
 		return modelAndView;		
 	}
 	
+
+	
+    /**
+     * 국가명을 조회한다.
+     * @param searchVO ComDefaultVO
+     * @return 출력페이지정보 "/cmm/cntryListSearch"
+     * @exception Exception
+     */
+    @RequestMapping(value="/cmm/ses/cntryListSearch.do")
+    public String selectProgrmListSearch(
+    		@ModelAttribute("searchVO") ComDefaultVO searchVO,
+    		HttpServletRequest request,
+    		ModelMap model) throws Exception {
+		ComDefaultCodeVO vo = new ComDefaultCodeVO();
+		vo.setCodeId("COM039");
+        List<CmmnDetailCode> list_code = cmmUseService.selectCmmCodeDetail(vo);
+        String strKey =EgovStringUtil.isNullToString(request.getParameter("rowKey"));
+        model.addAttribute("pRowKey", strKey);
+        model.addAttribute("list_code", list_code);
+        return "tpss/com/ses/cntrysearch";
+    }
+    
     private String encrypt(Object object) {
     	String encrypt = "";
     	try {
@@ -169,5 +205,5 @@ public class ComSampleController {
         	LOGGER.error("[" + e.getClass() +"] :" + e.getMessage());
         }
 		return decrypt;
-    }    
+    }
 }
